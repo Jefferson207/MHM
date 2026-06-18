@@ -1,11 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { useEffect, useState } from 'react'
+import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Camera,
   Check,
-  ChevronLeft,
-  ChevronRight,
   MapPin,
   Menu,
   MessageCircle,
@@ -170,13 +168,15 @@ function SectionTitle({ eyebrow, title, text }: { eyebrow: string; title: string
   )
 }
 
-function EditorialProductSlide({
+function ProductCard({
   product,
   index,
+  compact = false,
   onOpen,
 }: {
   product: Product
   index: number
+  compact?: boolean
   onOpen: (product: Product) => void
 }) {
   return (
@@ -185,29 +185,32 @@ function EditorialProductSlide({
       initial="hidden"
       whileInView="visible"
       viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.7, delay: Math.min(index * 0.05, 0.24) }}
-      className="group min-w-[88vw] snap-center lg:min-w-[76vw] xl:min-w-[68vw]"
+      transition={{ duration: 0.62, delay: Math.min(index * 0.04, 0.22) }}
+      whileHover={{ y: -6 }}
+      className={`group ${compact ? 'min-w-[76vw] sm:min-w-[330px] lg:min-w-[340px]' : ''}`}
     >
       <button type="button" onClick={() => onOpen(product)} className="block w-full text-left">
-        <div className="relative h-[68vh] min-h-[560px] overflow-hidden rounded-[32px] bg-zinc-950 shadow-[0_30px_90px_rgba(0,0,0,0.34)]">
+        <div className="relative h-[330px] overflow-hidden rounded-3xl bg-zinc-950 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:h-[390px] lg:h-[430px]">
           <img
             src={product.image}
             alt={product.name}
             onError={(event) => {
               event.currentTarget.src = product.fallbackImage
             }}
-            className="h-full w-full object-cover object-top opacity-90 transition duration-700 group-hover:scale-[1.035] group-hover:opacity-100"
+            className="h-full w-full object-cover object-top opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/25 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 flex flex-col gap-6 p-7 sm:flex-row sm:items-end sm:justify-between sm:p-10">
+          <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
+        </div>
+        <div className="pt-5">
+          <div className="flex items-start justify-between gap-5">
             <div>
-              <h3 className="max-w-2xl text-3xl font-black uppercase leading-none text-white sm:text-5xl">{product.name}</h3>
-              <p className="mt-4 text-2xl font-black text-red-500">{product.price}</p>
+              <h3 className="text-base font-black uppercase leading-tight tracking-wide text-white sm:text-lg">{product.name}</h3>
             </div>
-            <span className="inline-flex min-h-13 w-fit items-center justify-center rounded-full bg-white px-8 text-xs font-black uppercase tracking-[0.18em] text-black transition group-hover:bg-red-600 group-hover:text-white">
-              Comprar <ArrowRight size={16} className="ml-2" />
-            </span>
+            <p className="shrink-0 text-lg font-black text-white">{product.price}</p>
           </div>
+          <span className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/10 bg-white px-5 text-xs font-black uppercase tracking-[0.18em] text-black transition group-hover:border-red-600 group-hover:bg-red-600 group-hover:text-white">
+            Ver producto
+          </span>
         </div>
       </button>
     </motion.article>
@@ -248,18 +251,25 @@ function ProductModal({ product, onClose }: { product: Product | null; onClose: 
             onError={(event) => {
               event.currentTarget.src = product.fallbackImage
             }}
-            className="h-[360px] w-full rounded-2xl object-cover object-top sm:h-[620px]"
+            className="h-[360px] w-full rounded-2xl bg-black object-contain sm:h-[620px]"
           />
-          <div className="mt-3 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-3 gap-3">
             {product.gallery.map((image) => (
-              <button key={image} type="button" onClick={() => setActiveImage(image)} className="overflow-hidden rounded-xl border border-white/10">
+              <button
+                key={image}
+                type="button"
+                onClick={() => setActiveImage(image)}
+                className={`flex h-28 items-center justify-center overflow-hidden rounded-xl border bg-black transition sm:h-28 ${
+                  activeImage === image ? 'border-red-600' : 'border-white/10 hover:border-white/35'
+                }`}
+              >
                 <img
                   src={image}
                   alt={product.name}
                   onError={(event) => {
                     event.currentTarget.src = product.fallbackImage
                   }}
-                  className="h-20 w-full object-cover object-top opacity-80 transition hover:scale-105 hover:opacity-100 sm:h-24"
+                  className="h-full w-full object-contain opacity-95"
                 />
               </button>
             ))}
@@ -316,10 +326,6 @@ function ProductModal({ product, onClose }: { product: Product | null; onClose: 
 function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [scrolled, setScrolled] = useState(false)
-  const featuredRef = useRef<HTMLDivElement | null>(null)
-  const { scrollYProgress } = useScroll()
-  const heroProductY = useTransform(scrollYProgress, [0, 0.28], [0, -70])
-  const heroProductScale = useTransform(scrollYProgress, [0, 0.28], [1, 1.04])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30)
@@ -327,13 +333,6 @@ function App() {
     window.addEventListener('scroll', onScroll)
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
-
-  const moveFeatured = (direction: 'left' | 'right') => {
-    featuredRef.current?.scrollBy({
-      left: direction === 'right' ? 390 : -390,
-      behavior: 'smooth',
-    })
-  }
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-black font-sans text-white">
@@ -367,12 +366,22 @@ function App() {
         </header>
       </div>
 
-      <section id="inicio" className="relative min-h-screen overflow-hidden pt-16 sm:pt-20">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_72%_48%,rgba(220,38,38,0.24),transparent_34%),radial-gradient(circle_at_12%_18%,rgba(220,38,38,0.12),transparent_26%),linear-gradient(135deg,#020202,#070707_48%,#110202)]" />
-        <div className="absolute inset-x-0 top-0 h-64 bg-gradient-to-b from-white/[0.04] to-transparent" />
+      <section id="inicio" className="relative min-h-[88svh] overflow-hidden pt-16 sm:min-h-[92svh] sm:pt-20">
+        <div className="absolute inset-0">
+          <img
+            src="/products/prenda-05.jpg"
+            alt="Moda urbana MHM URBAN"
+            onError={(event) => {
+              event.currentTarget.src = products[4].fallbackImage
+            }}
+            className="h-full w-full object-cover object-[62%_center] opacity-55"
+          />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_74%_25%,rgba(220,38,38,0.34),transparent_32%),linear-gradient(90deg,rgba(0,0,0,0.98),rgba(0,0,0,0.78)_42%,rgba(0,0,0,0.35))]" />
+          <div className="absolute inset-0 street-grid opacity-55" />
+        </div>
 
-        <div className="relative mx-auto grid min-h-[calc(100vh-4rem)] max-w-7xl items-center gap-16 px-5 py-20 sm:min-h-[calc(100vh-5rem)] sm:px-8 sm:py-24 lg:grid-cols-2 lg:gap-24">
-          <motion.div initial={{ opacity: 0, x: -34 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }} className="z-10">
+        <div className="relative mx-auto grid min-h-[calc(88svh-4rem)] max-w-7xl items-center px-5 py-14 sm:min-h-[calc(92svh-5rem)] sm:px-8">
+          <motion.div initial={{ opacity: 0, y: 38 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }} className="z-10 max-w-4xl">
             <h1 className="max-w-5xl text-6xl font-black uppercase leading-[0.86] text-white sm:text-8xl lg:text-9xl">
               ELEVA TU <span className="block text-red-600 drop-shadow-[0_0_34px_rgba(220,38,38,0.85)]">ESTILO</span>
             </h1>
@@ -404,34 +413,6 @@ function App() {
               </div>
             </div>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, x: 38, y: 20 }}
-            animate={{ opacity: 1, x: 0, y: [0, -10, 0] }}
-            transition={{ opacity: { duration: 0.85, ease: 'easeOut' }, x: { duration: 0.85, ease: 'easeOut' }, y: { duration: 5, repeat: Infinity, ease: 'easeInOut' } }}
-            style={{ y: heroProductY, scale: heroProductScale }}
-            className="relative min-h-[460px] lg:min-h-[720px]"
-          >
-            <div className="absolute inset-6 rounded-[40px] bg-red-600/20 blur-3xl" />
-            <img
-              src="/products/prenda-01.jpg"
-              alt=""
-              aria-hidden="true"
-              onError={(event) => {
-                event.currentTarget.src = products[0].fallbackImage
-              }}
-              className="absolute left-1/2 top-12 h-[480px] w-[78%] -translate-x-1/2 rounded-[40px] object-cover object-top opacity-30 blur-2xl lg:h-[680px]"
-            />
-            <div className="absolute inset-0 rounded-[40px] bg-gradient-to-b from-white/10 to-transparent opacity-30" />
-            <img
-              src="/products/prenda-01.jpg"
-              alt="Producto estrella MHM URBAN"
-              onError={(event) => {
-                event.currentTarget.src = products[0].fallbackImage
-              }}
-              className="relative mx-auto h-[520px] w-full max-w-[540px] rounded-[40px] object-cover object-top shadow-[0_0_90px_rgba(220,38,38,0.28)] drop-shadow-[0_38px_90px_rgba(0,0,0,0.8)] lg:h-[760px]"
-            />
-          </motion.div>
         </div>
       </section>
 
@@ -447,84 +428,32 @@ function App() {
 
       <section id="catalogo" className="relative px-4 py-24 sm:px-8 md:py-32">
         <div className="mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-            <motion.div variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true, margin: '-90px' }} transition={{ duration: 0.7 }} className="max-w-2xl">
-              <p className="mb-3 text-xs font-black uppercase tracking-[0.35em] text-red-500">Nueva coleccion</p>
-              <h2 className="text-4xl font-black uppercase leading-tight text-white sm:text-6xl">Coleccion destacada</h2>
-              <p className="mt-5 text-base leading-8 text-zinc-400">Seleccion exclusiva de MHM Urban.</p>
-            </motion.div>
-            <div className="flex items-center gap-3">
-              <button type="button" onClick={() => moveFeatured('left')} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-black text-white transition hover:border-red-600 hover:bg-red-600" aria-label="Ver producto anterior">
-                <ChevronLeft size={20} />
-              </button>
-              <button type="button" onClick={() => moveFeatured('right')} className="grid h-12 w-12 place-items-center rounded-full border border-white/15 bg-white text-black transition hover:border-red-600 hover:bg-red-600 hover:text-white" aria-label="Ver producto siguiente">
-                <ChevronRight size={20} />
-              </button>
-            </div>
-          </div>
-          <div ref={featuredRef} className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-7 overflow-x-auto scroll-smooth px-4 pb-5 sm:-mx-8 sm:px-8">
+          <SectionTitle eyebrow="Nueva coleccion" title="Coleccion destacada" text="Seleccion exclusiva de MHM Urban." />
+          <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, index) => (
-              <EditorialProductSlide key={product.name} product={product} index={index} onOpen={setSelectedProduct} />
+              <ProductCard key={product.name} product={product} index={index} onOpen={setSelectedProduct} />
             ))}
           </div>
         </div>
       </section>
 
-      <section id="destacados" className="px-4 py-24 sm:px-8 md:py-32">
-        <div className="mx-auto grid max-w-7xl gap-6 lg:grid-cols-2">
-          {[
-            {
-              title: 'Nueva coleccion',
-              text: 'Explora las prendas mas exclusivas.',
-              action: 'Ver mas',
-              image: products[0].image,
-              fallbackImage: products[0].fallbackImage,
-              href: '#catalogo',
-            },
-            {
-              title: 'Street collection',
-              text: 'Disenos urbanos para destacar.',
-              action: 'Comprar',
-              image: products[7].image,
-              fallbackImage: products[7].fallbackImage,
-              href: '#catalogo',
-            },
-          ].map((banner, index) => (
-            <motion.a
-              key={banner.title}
-              href={banner.href}
-              variants={fadeUp}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-90px' }}
-              transition={{ duration: 0.7, delay: index * 0.08 }}
-              className="group relative h-[700px] overflow-hidden rounded-[32px] bg-zinc-950 shadow-[0_30px_90px_rgba(0,0,0,0.28)]"
-            >
-              <img
-                src={banner.image}
-                alt={banner.title}
-                onError={(event) => {
-                  event.currentTarget.src = banner.fallbackImage
-                }}
-                className="h-full w-full object-cover object-top opacity-80 transition duration-700 group-hover:scale-105 group-hover:opacity-95"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/30 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-8 sm:p-10">
-                <h3 className="text-4xl font-black uppercase text-white sm:text-5xl">{banner.title}</h3>
-                <p className="mt-4 max-w-sm text-base text-zinc-300">{banner.text}</p>
-                <span className="mt-7 inline-flex min-h-12 items-center justify-center rounded-full bg-white px-7 text-xs font-black uppercase tracking-[0.18em] text-black transition group-hover:bg-red-600 group-hover:text-white">
-                  {banner.action}
-                </span>
+      <section id="destacados" className="bg-zinc-950/70 px-4 py-20 sm:px-8 md:py-28">
+        <div className="mx-auto max-w-7xl">
+          <SectionTitle eyebrow="Destacados" title="Mas vendidos" text="Prendas seleccionadas para comprar rapido y sin complicaciones." />
+          <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-4 pb-5 sm:-mx-8 sm:px-8">
+            {products.slice(0, 6).map((product, index) => (
+              <div key={product.name} className="snap-start">
+                <ProductCard product={product} index={index} compact onOpen={setSelectedProduct} />
               </div>
-            </motion.a>
-          ))}
+            ))}
+          </div>
         </div>
       </section>
 
-      <section id="categorias" className="px-4 py-24 sm:px-8 md:py-32">
+      <section id="categorias" className="px-4 py-20 sm:px-8 md:py-28">
         <div className="mx-auto max-w-7xl">
           <SectionTitle eyebrow="Categorias" title="Compra por estilo" text="Explora las lineas principales de MHM Urban." />
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
             {categories.map((category, index) => (
               <motion.a
                 key={category.title}
@@ -534,7 +463,7 @@ function App() {
                 whileInView="visible"
                 viewport={{ once: true, margin: '-80px' }}
                 transition={{ duration: 0.65, delay: index * 0.06 }}
-                className="group relative h-[540px] overflow-hidden rounded-[32px] bg-zinc-950"
+                className="group relative h-[420px] overflow-hidden rounded-3xl bg-zinc-950"
               >
                 <img
                   src={category.image}
@@ -546,7 +475,7 @@ function App() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
                 <div className="absolute inset-x-0 bottom-0 p-8">
-                  <h3 className="text-4xl font-black uppercase text-white sm:text-5xl">{category.title}</h3>
+                  <h3 className="text-3xl font-black uppercase text-white">{category.title}</h3>
                 </div>
               </motion.a>
             ))}
