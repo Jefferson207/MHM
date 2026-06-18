@@ -1,0 +1,22 @@
+<svg width="900" height="900" viewBox="0 0 900 900" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="900" height="900" fill="black"/>
+  <circle cx="450" cy="450" r="375" fill="black" stroke="white" stroke-width="18"/>
+  <circle cx="450" cy="450" r="344" stroke="white" stroke-width="7"/>
+  <circle cx="450" cy="450" r="322" stroke="white" stroke-opacity=".5" stroke-width="2" stroke-dasharray="4 12"/>
+  <g filter="url(#shadow)">
+    <path d="M178 480L221 284C225 266 240 253 258 252H298C323 252 340 273 337 298L324 410L386 276C394 260 410 250 428 250H476C500 250 519 271 515 295L483 532C480 551 464 566 445 567H393C369 568 351 548 354 524L365 407L303 543C296 559 280 570 262 570H222C195 570 175 545 181 519L178 480Z" fill="#FF0715"/>
+    <path d="M178 480L221 284C225 266 240 253 258 252H298C323 252 340 273 337 298L324 410L386 276C394 260 410 250 428 250H476C500 250 519 271 515 295L483 532C480 551 464 566 445 567H393C369 568 351 548 354 524L365 407L303 543C296 559 280 570 262 570H222C195 570 175 545 181 519L178 480Z" stroke="white" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M522 480L565 284C569 266 584 253 602 252H642C667 252 684 273 681 298L668 410L730 276C738 260 754 250 772 250H820C844 250 863 271 859 295L827 532C824 551 808 566 789 567H737C713 568 695 548 698 524L709 407L647 543C640 559 624 570 606 570H566C539 570 519 545 525 519L522 480Z" fill="#FF0715"/>
+    <path d="M522 480L565 284C569 266 584 253 602 252H642C667 252 684 273 681 298L668 410L730 276C738 260 754 250 772 250H820C844 250 863 271 859 295L827 532C824 551 808 566 789 567H737C713 568 695 548 698 524L709 407L647 543C640 559 624 570 606 570H566C539 570 519 545 525 519L522 480Z" stroke="white" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M562 170L412 441H497L410 726L651 360H545L562 170Z" fill="#FF0715"/>
+    <path d="M562 170L412 441H497L410 726L651 360H545L562 170Z" stroke="white" stroke-width="18" stroke-linejoin="round"/>
+    <path d="M525 250L459 414H536L470 609L596 387H518L525 250Z" fill="white" fill-opacity=".92"/>
+  </g>
+  <text x="450" y="682" text-anchor="middle" fill="white" font-family="Arial Black, Impact, sans-serif" font-size="55" font-weight="900" letter-spacing="5">ELEVA TU ESTILO</text>
+  <defs>
+    <filter id="shadow" x="115" y="110" width="790" height="670" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="12" flood-color="#000" flood-opacity=".9"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#ff0715" flood-opacity=".28"/>
+    </filter>
+  </defs>
+</svg>
