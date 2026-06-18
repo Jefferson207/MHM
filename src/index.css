@@ -9,6 +9,7 @@ body {
   margin: 0;
   min-width: 320px;
   background: #000;
+  overflow-x: hidden;
 }
 
 * {
@@ -38,6 +39,30 @@ body {
 
 .marquee-track {
   animation: marquee 22s linear infinite;
+}
+
+.mesh-bg {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(220, 38, 38, 0.13), transparent 28%),
+    radial-gradient(circle at 82% 22%, rgba(80, 80, 80, 0.16), transparent 26%),
+    radial-gradient(circle at 64% 78%, rgba(127, 29, 29, 0.12), transparent 30%),
+    #000;
+  filter: blur(0.2px);
+}
+
+.noise-layer {
+  opacity: 0.045;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.8) 0 1px, transparent 1px),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.45) 0 1px, transparent 1px);
+  background-size: 34px 34px, 47px 47px;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 640px) {
+  .street-grid {
+    background-size: 42px 42px;
+  }
 }
 
 @keyframes marquee {

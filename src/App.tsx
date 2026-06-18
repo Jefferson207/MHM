@@ -22,12 +22,13 @@ import {
 } from 'lucide-react'
 
 const whatsappBase = 'https://wa.me/51986726299'
+const whatsappMessageUrl = `${whatsappBase}?text=${encodeURIComponent('Hola, quiero comprar en MHM URBAN. Me puedes ayudar?')}`
 
 const navItems = [
-  { label: 'Comprar', href: '#catalogo' },
-  { label: 'Destacados', href: '#destacados' },
+  { label: 'Coleccion', href: '#catalogo' },
+  { label: 'Mas vendidos', href: '#destacados' },
   { label: 'Instagram', href: '#instagram' },
-  { label: 'Redes', href: '#redes' },
+  { label: 'Contacto', href: '#redes' },
 ]
 
 type Product = {
@@ -168,6 +169,14 @@ function SectionTitle({ eyebrow, title, text }: { eyebrow: string; title: string
   )
 }
 
+function WhatsAppIcon({ size = 26 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+      <path d="M16.02 3.2A12.73 12.73 0 0 0 5.1 22.5L3.4 28.8l6.45-1.69a12.7 12.7 0 0 0 6.16 1.57h.01A12.74 12.74 0 0 0 16.02 3.2Zm0 23.34h-.01a10.56 10.56 0 0 1-5.38-1.47l-.39-.23-3.83 1 1.02-3.73-.25-.38a10.59 10.59 0 1 1 8.84 4.81Zm5.8-7.92c-.32-.16-1.88-.93-2.17-1.04-.29-.1-.5-.16-.71.16-.21.31-.82 1.03-1 1.24-.19.21-.37.24-.69.08-.32-.16-1.35-.5-2.57-1.59-.95-.85-1.59-1.89-1.78-2.21-.19-.32-.02-.49.14-.65.14-.14.32-.37.48-.55.16-.19.21-.32.32-.53.11-.21.05-.4-.03-.56-.08-.16-.71-1.71-.97-2.34-.25-.61-.51-.53-.71-.54h-.61c-.21 0-.56.08-.85.4-.29.32-1.11 1.09-1.11 2.65s1.14 3.07 1.3 3.28c.16.21 2.24 3.42 5.43 4.79.76.33 1.35.52 1.81.67.76.24 1.45.21 2 .13.61-.09 1.88-.77 2.15-1.51.27-.74.27-1.38.19-1.51-.08-.13-.29-.21-.61-.37Z" />
+    </svg>
+  )
+}
+
 function ProductCard({
   product,
   index,
@@ -179,6 +188,8 @@ function ProductCard({
   compact?: boolean
   onOpen: (product: Product) => void
 }) {
+  const [spotlight, setSpotlight] = useState({ x: 50, y: 50 })
+
   return (
     <motion.article
       variants={fadeUp}
@@ -187,28 +198,53 @@ function ProductCard({
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.62, delay: Math.min(index * 0.04, 0.22) }}
       whileHover={{ y: -6 }}
-      className={`group ${compact ? 'min-w-[76vw] sm:min-w-[330px] lg:min-w-[340px]' : ''}`}
+      className={`group ${compact ? 'min-w-[62vw] sm:min-w-[330px] lg:min-w-[340px]' : ''}`}
     >
-      <button type="button" onClick={() => onOpen(product)} className="block w-full text-left">
-        <div className="relative h-[330px] overflow-hidden rounded-3xl bg-zinc-950 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:h-[390px] lg:h-[430px]">
+      <button
+        type="button"
+        onClick={() => onOpen(product)}
+        onMouseMove={(event) => {
+          const rect = event.currentTarget.getBoundingClientRect()
+          setSpotlight({
+            x: ((event.clientX - rect.left) / rect.width) * 100,
+            y: ((event.clientY - rect.top) / rect.height) * 100,
+          })
+        }}
+        className="block w-full rounded-3xl text-left transition duration-500 hover:scale-[1.015] hover:shadow-[0_0_45px_rgba(220,38,38,0.14)]"
+        style={{
+          background: `radial-gradient(circle at ${spotlight.x}% ${spotlight.y}%, rgba(220,38,38,0.16), transparent 34%)`,
+        }}
+      >
+        <div className="relative h-[260px] overflow-hidden rounded-3xl bg-zinc-950 shadow-[0_18px_55px_rgba(0,0,0,0.22)] sm:h-[390px] lg:h-[430px]">
           <img
             src={product.image}
             alt={product.name}
+            loading="lazy"
             onError={(event) => {
               event.currentTarget.src = product.fallbackImage
             }}
-            className="h-full w-full object-cover object-top opacity-90 transition duration-700 group-hover:scale-105 group-hover:opacity-100"
+            className="h-full w-full object-cover object-top opacity-90 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-0"
+          />
+          <img
+            src={product.gallery[1]}
+            alt=""
+            aria-hidden="true"
+            loading="lazy"
+            onError={(event) => {
+              event.currentTarget.src = product.fallbackImage
+            }}
+            className="absolute inset-0 h-full w-full object-cover object-top opacity-0 transition duration-700 group-hover:scale-[1.03] group-hover:opacity-100"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 transition duration-500 group-hover:opacity-100" />
         </div>
         <div className="pt-5">
-          <div className="flex items-start justify-between gap-5">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-5">
             <div>
-              <h3 className="text-base font-black uppercase leading-tight tracking-wide text-white sm:text-lg">{product.name}</h3>
+              <h3 className="text-sm font-black uppercase leading-tight tracking-wide text-white sm:text-lg">{product.name}</h3>
             </div>
-            <p className="shrink-0 text-lg font-black text-white">{product.price}</p>
+            <p className="shrink-0 text-base font-black text-white sm:text-lg">{product.price}</p>
           </div>
-          <span className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-full border border-white/10 bg-white px-5 text-xs font-black uppercase tracking-[0.18em] text-black transition group-hover:border-red-600 group-hover:bg-red-600 group-hover:text-white">
+          <span className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-full border border-white/10 bg-white px-4 text-[10px] font-black uppercase tracking-[0.14em] text-black transition duration-300 group-hover:scale-[1.02] group-hover:border-red-600 group-hover:bg-red-600 group-hover:text-white sm:mt-5 sm:min-h-12 sm:px-5 sm:text-xs sm:tracking-[0.18em]">
             Ver producto
           </span>
         </div>
@@ -326,6 +362,8 @@ function ProductModal({ product, onClose }: { product: Product | null; onClose: 
 function App() {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+  const [cursor, setCursor] = useState({ x: -200, y: -200 })
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 30)
@@ -334,12 +372,27 @@ function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const onPointerMove = (event: PointerEvent) => {
+      setCursor({ x: event.clientX, y: event.clientY })
+    }
+    window.addEventListener('pointermove', onPointerMove)
+    return () => window.removeEventListener('pointermove', onPointerMove)
+  }, [])
+
   return (
-    <main className="min-h-screen overflow-x-hidden bg-black font-sans text-white">
-      <div className={`fixed inset-x-0 top-0 z-50 border-b backdrop-blur-2xl transition duration-500 ${scrolled ? 'border-white/10 bg-black/90 shadow-[0_18px_60px_rgba(0,0,0,0.45)]' : 'border-white/0 bg-black/20'}`}>
+    <main className="relative isolate min-h-screen overflow-x-hidden bg-black font-sans text-white">
+      <div className="pointer-events-none fixed inset-0 -z-10 mesh-bg" />
+      <div className="pointer-events-none fixed inset-0 -z-10 noise-layer" />
+      <motion.div
+        className="pointer-events-none fixed z-[3] hidden h-56 w-56 rounded-full bg-red-600/10 blur-3xl lg:block"
+        animate={{ x: cursor.x - 112, y: cursor.y - 112 }}
+        transition={{ type: 'spring', stiffness: 90, damping: 26, mass: 0.4 }}
+      />
+      <div className={`fixed inset-x-0 top-0 z-50 border-b transition duration-500 ${scrolled ? 'border-white/10 bg-black/70 shadow-[0_18px_60px_rgba(0,0,0,0.45)] backdrop-blur-[20px]' : 'border-white/0 bg-black/10 backdrop-blur-sm'}`}>
         <header className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8">
           <a href="#inicio" className="group flex items-center gap-3">
-            <img src="/logo-mhm.svg" alt="Logo MHM URBAN" className="h-11 w-11 rounded-full border border-white/20 object-cover shadow-[0_0_35px_rgba(220,38,38,0.5)] sm:h-14 sm:w-14" />
+            <img src="/logo-mhm.svg" alt="Logo MHM URBAN" className={`h-11 w-11 rounded-full border border-white/20 object-cover transition duration-500 sm:h-14 sm:w-14 ${scrolled ? 'shadow-[0_0_42px_rgba(220,38,38,0.48)]' : 'shadow-[0_0_24px_rgba(220,38,38,0.28)]'}`} />
             <span className="leading-none">
               <span className="block text-sm font-black tracking-[0.14em] sm:text-lg sm:tracking-[0.18em]">MHM URBAN</span>
               <span className="block text-[9px] font-bold uppercase tracking-[0.22em] text-zinc-500 sm:text-[10px] sm:tracking-[0.3em]">Eleva tu estilo</span>
@@ -348,7 +401,7 @@ function App() {
 
           <nav className="hidden items-center gap-8 lg:flex">
             {navItems.map((item) => (
-              <a key={item.href} href={item.href} className="text-xs font-bold uppercase tracking-[0.25em] text-zinc-400 transition hover:text-white">
+              <a key={item.href} href={item.href} className="text-xs font-bold uppercase tracking-[0.18em] text-zinc-400 transition hover:text-white">
                 {item.label}
               </a>
             ))}
@@ -359,11 +412,30 @@ function App() {
               <ShoppingBag size={17} />
               Comprar
             </a>
-            <a href="#catalogo" className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/5 text-white lg:hidden" aria-label="Ir al catalogo">
-              <Menu size={20} />
-            </a>
+            <button type="button" onClick={() => setMenuOpen((value) => !value)} className="grid h-11 w-11 place-items-center rounded-full border border-white/15 bg-white/5 text-white transition hover:border-red-600 hover:bg-red-600/20 lg:hidden" aria-label="Abrir menu">
+              {menuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </header>
+        <motion.div
+          initial={false}
+          animate={menuOpen ? { height: 'auto', opacity: 1 } : { height: 0, opacity: 0 }}
+          transition={{ duration: 0.28, ease: 'easeOut' }}
+          className="overflow-hidden border-t border-white/10 bg-black/85 backdrop-blur-[20px] lg:hidden"
+        >
+          <nav className="mx-auto grid max-w-7xl gap-2 px-4 py-5">
+            {navItems.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setMenuOpen(false)}
+                className="rounded-full border border-white/10 px-5 py-4 text-sm font-black uppercase tracking-[0.18em] text-white transition hover:border-red-600 hover:bg-red-600/15"
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+        </motion.div>
       </div>
 
       <section id="inicio" className="relative min-h-[88svh] overflow-hidden pt-16 sm:min-h-[92svh] sm:pt-20">
@@ -371,6 +443,7 @@ function App() {
           <img
             src="/products/prenda-05.jpg"
             alt="Moda urbana MHM URBAN"
+            loading="eager"
             onError={(event) => {
               event.currentTarget.src = products[4].fallbackImage
             }}
@@ -380,7 +453,10 @@ function App() {
           <div className="absolute inset-0 street-grid opacity-55" />
         </div>
 
-        <div className="relative mx-auto grid min-h-[calc(88svh-4rem)] max-w-7xl items-center px-5 py-14 sm:min-h-[calc(92svh-5rem)] sm:px-8">
+        <motion.div
+          style={{ y: scrolled ? -10 : 0 }}
+          className="relative z-10 mx-auto grid min-h-[calc(88svh-4rem)] max-w-7xl items-center px-5 py-14 sm:min-h-[calc(92svh-5rem)] sm:px-8"
+        >
           <motion.div initial={{ opacity: 0, y: 38 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8, ease: 'easeOut' }} className="z-10 max-w-4xl">
             <h1 className="max-w-5xl text-6xl font-black uppercase leading-[0.86] text-white sm:text-8xl lg:text-9xl">
               ELEVA TU <span className="block text-red-600 drop-shadow-[0_0_34px_rgba(220,38,38,0.85)]">ESTILO</span>
@@ -413,14 +489,14 @@ function App() {
               </div>
             </div>
           </motion.div>
-        </div>
+        </motion.div>
       </section>
 
       <div className="overflow-hidden border-y border-white/10 bg-red-600 py-4 text-black">
         <div className="marquee-track flex w-max gap-10 text-sm font-black uppercase tracking-[0.28em]">
           {[1, 2].map((item) => (
             <span key={item} className="whitespace-nowrap">
-              MHM URBAN • NUEVA COLECCION • ENVIOS A TODO LIMA • CALIDAD PREMIUM • MODA URBANA • MHM URBAN •
+              MHM URBAN - NUEVA COLECCION - ENVIOS A TODO LIMA - CALIDAD PREMIUM - MODA URBANA - MHM URBAN -
             </span>
           ))}
         </div>
@@ -429,7 +505,7 @@ function App() {
       <section id="catalogo" className="relative px-4 py-24 sm:px-8 md:py-32">
         <div className="mx-auto max-w-7xl">
           <SectionTitle eyebrow="Nueva coleccion" title="Coleccion destacada" text="Seleccion exclusiva de MHM Urban." />
-          <div className="grid gap-x-8 gap-y-14 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-8 sm:gap-y-14 lg:grid-cols-3 xl:grid-cols-4">
             {products.map((product, index) => (
               <ProductCard key={product.name} product={product} index={index} onOpen={setSelectedProduct} />
             ))}
@@ -440,6 +516,45 @@ function App() {
       <section id="destacados" className="bg-zinc-950/70 px-4 py-20 sm:px-8 md:py-28">
         <div className="mx-auto max-w-7xl">
           <SectionTitle eyebrow="Destacados" title="Mas vendidos" text="Prendas seleccionadas para comprar rapido y sin complicaciones." />
+          <motion.div
+            variants={fadeUp}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.7 }}
+            className="mb-10 grid overflow-hidden rounded-[32px] border border-white/10 bg-white/[0.035] shadow-[0_24px_80px_rgba(0,0,0,0.3)] backdrop-blur-xl lg:grid-cols-[0.92fr_1.08fr]"
+          >
+            <div className="relative min-h-[360px] overflow-hidden bg-black">
+              <div className="absolute inset-0 bg-red-600/10 blur-3xl" />
+              <img
+                src={products[0].image}
+                alt={products[0].name}
+                loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.src = products[0].fallbackImage
+                }}
+                className="relative h-full w-full object-contain p-5 transition duration-700 hover:scale-[1.03]"
+              />
+            </div>
+            <div className="flex flex-col justify-center p-7 sm:p-10">
+              <div className="flex items-center gap-2 text-sm font-black text-red-500">
+                {[1, 2, 3, 4, 5].map((item) => (
+                  <Star key={item} size={15} className="fill-red-600 text-red-600" />
+                ))}
+                <span className="ml-2 text-white">4.9</span>
+              </div>
+              <p className="mt-5 text-xs font-black uppercase tracking-[0.32em] text-red-500">Best Seller</p>
+              <h3 className="mt-3 text-3xl font-black uppercase leading-tight text-white sm:text-5xl">{products[0].name}</h3>
+              <p className="mt-4 text-3xl font-black text-white">{products[0].price}</p>
+              <button
+                type="button"
+                onClick={() => setSelectedProduct(products[0])}
+                className="mt-7 inline-flex min-h-13 w-fit items-center justify-center gap-3 rounded-full bg-red-600 px-8 text-xs font-black uppercase tracking-[0.18em] text-white transition hover:scale-[1.03] hover:bg-white hover:text-black"
+              >
+                Comprar <ArrowRight size={16} />
+              </button>
+            </div>
+          </motion.div>
           <div className="scrollbar-hide -mx-4 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-4 pb-5 sm:-mx-8 sm:px-8">
             {products.slice(0, 6).map((product, index) => (
               <div key={product.name} className="snap-start">
@@ -468,6 +583,7 @@ function App() {
                 <img
                   src={category.image}
                   alt={category.title}
+                  loading="lazy"
                   onError={(event) => {
                     event.currentTarget.src = category.fallbackImage
                   }}
@@ -513,6 +629,7 @@ function App() {
                 <img
                   src={product.image}
                   alt="Publicacion Instagram MHM URBAN"
+                  loading="lazy"
                   onError={(event) => {
                     event.currentTarget.src = product.fallbackImage
                   }}
@@ -552,7 +669,7 @@ function App() {
       </section>
 
       <footer className="px-4 py-12 pb-24 sm:px-8 sm:pb-12">
-        <div className="mx-auto flex max-w-7xl flex-col gap-8 border-t border-white/10 pt-10 md:flex-row md:items-end md:justify-between">
+        <div className="mx-auto flex max-w-7xl flex-col gap-8 rounded-[32px] border border-white/10 bg-white/[0.035] p-7 shadow-[0_0_80px_rgba(220,38,38,0.08)] backdrop-blur-xl md:flex-row md:items-end md:justify-between">
           <div>
             <div className="flex items-center gap-4">
               <img src="/logo-mhm.svg" alt="Logo MHM URBAN" className="h-16 w-16 rounded-full border border-white/15 object-cover" />
@@ -567,10 +684,31 @@ function App() {
         </div>
       </footer>
 
-      <a href="#catalogo" className="fixed inset-x-4 bottom-4 z-50 inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-red-600 text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_0_45px_rgba(220,38,38,0.5)] transition active:scale-[0.98] sm:hidden">
+      <a href="#catalogo" className="fixed bottom-4 left-4 right-20 z-50 inline-flex min-h-14 items-center justify-center gap-3 rounded-full bg-red-600 text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_0_45px_rgba(220,38,38,0.5)] transition active:scale-[0.98] sm:hidden">
         <ShoppingBag size={18} />
         Comprar ahora
       </a>
+
+      <div className="fixed bottom-4 right-4 z-50 flex items-center gap-3">
+        <motion.div
+          initial={{ opacity: 0, x: 14, scale: 0.96 }}
+          animate={{ opacity: 1, x: 0, scale: 1 }}
+          transition={{ duration: 0.45, delay: 0.8, ease: 'easeOut' }}
+          className="relative hidden rounded-full border border-white/10 bg-white px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-black shadow-[0_18px_45px_rgba(0,0,0,0.35)] sm:block"
+        >
+          Escribenos por WhatsApp
+          <span className="absolute -right-1 top-1/2 h-3 w-3 -translate-y-1/2 rotate-45 bg-white" />
+        </motion.div>
+        <a
+          href={whatsappMessageUrl}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Comprar por WhatsApp"
+          className="grid h-14 w-14 place-items-center rounded-full bg-[#25D366] text-white shadow-[0_0_40px_rgba(37,211,102,0.45)] ring-1 ring-white/20 transition hover:scale-105 hover:bg-[#1ebe5d] active:scale-95"
+        >
+          <WhatsAppIcon size={30} />
+        </a>
+      </div>
 
       <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
     </main>
